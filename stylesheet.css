@@ -1,0 +1,158 @@
+* {
+  padding: 0px;
+  margin: 0px;
+}
+canvas {
+  background: #eee;
+  display: block;
+  margin: 0 auto;
+}
+body {
+  overflow: auto;
+  background-image: url('images/grass.png');
+}
+#container-intro {
+  margin: auto;
+  position: relative;
+  overflow: auto;
+  width: 960px;
+}
+#container {
+  margin: auto;
+  position: relative;
+  overflow: auto;
+  width: 910px;
+}
+@font-face {
+  font-family: Freshman;
+  src: url('Freshman.ttf');
+}
+p.title {
+  font-family: Freshman;
+  font-size: 70pt;
+  color: #a7fa06;
+  margin: 20px 0px 10px 190px;
+  float: left;
+}
+img.snake {
+  position: absolute;
+  width: 95px;
+  margin: 10px 0px 0px 110px;
+  top: 0px;
+  left: 0px;
+}
+img.background-img {
+  position: absolute;
+  width: 500px;
+  top: 203px;
+  left: 0px;
+  margin: 72px 10px 0px 60px;
+}
+#instructions {
+  width: 700px;
+  margin: 0 auto;
+  overflow: auto;
+}
+.snake1 {
+  float: left;
+  font-family: Helvetica, sans-serif;
+  color: white;
+  font-size: 14pt;
+  line-height: 1.4em;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+.snake2 {
+  float: right;
+  font-family: Helvetica, sans-serif;
+  color:white;
+  font-size: 14pt;
+  line-height: 1.4em;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+#content-intro {
+  border: 7px #a5fe1b solid;
+  width: 710px;
+  float: left;
+  margin-left: 95px;
+  height: 710px;
+  background-image: url('images/stone.png');
+  position: relative;
+}
+span {
+  color: #ff2929;
+}
+p.description, p.description1, p.description2 {
+  margin-top: 15px;
+  font-family: Freshman;
+  font-size: 20pt;
+  color: #a7fa06;
+  text-align: center;
+}
+p.description1, p.description2 {
+  margin-top: 0px;
+}
+p.controls1, p.controls2 {
+  font-family: Freshman;
+  color: #ff2929;
+  margin-top: 42px;
+  margin-bottom: 10px;
+}
+p.controls2 {
+  color: #00baff;
+}
+#description {
+  float: left;
+  width: 420px;
+  margin-left: 20px;
+  margin-top: 33px;
+}
+#controls {
+  font-size: 25pt;
+  width: 270px;
+  text-align: center;
+  float: left;
+}
+#up, #down, #left, #right {
+  margin: auto;
+  width: 40px;
+  height: 40px;
+  border: 3px solid #7dbb05;
+  font-family: Freshman;
+  background: #a7fa06;
+  border-radius: 2px;
+}
+#down, #left, #right {
+  float: left;
+  margin: 4px;
+  margin-top: 8px;
+}
+#left {
+  margin-left: 58px;
+}
+p.player1 {
+  color: #ff2929;
+  margin-top: 11px;
+  font-size: 18pt;
+  margin-left: 2px;
+  text-shadow: 1px 1px 2px black;
+}
+img.right, img.left {
+  margin-top: 9px;
+  margin-left: 2px;
+  width: 30px;
+}
+img.up, img.down {
+  width: 23px;
+  margin-top: 5px;
+}
+img.start {
+  position: absolute;
+  left: 205px;
+  width: 300px;
+  top: 450px;
+}
+img.start:hover {
+  filter: brightness(150%);
+}

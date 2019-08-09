@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+  <head>
+    <meta charset="utf8">
+    <link rel="stylesheet" type="text/css" href="stylesheet.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+    <title> Snake Hunt </title>
+  </head>
+
+  <body>
+    <div id="container">
+    <img src="images/snek.png" class="snake">
+    <p class="title"> NAKE HUNT </p> <br/>
+      <div id="content">
+        <canvas id="myCanvas" width="700" height="700"></canvas>
+        <script>
+          var canvas = document.getElementById("myCanvas");
+          var ctx = canvas.getContext("2d");
+          var x1 = 20; // start for first snake
+          var y1 = canvas.height / 2;
+          var x2 = canvas.width - 20; // start of second snake
+          var y2 = canvas.height / 2;
+          var dx1 = 1; // how fast snake moves
+          var dy1 = 0;
+          var dx2 = -1; // how fast snake1 moves
+          var dy2 = 0;
+          var turbo = 75; // turbo counter
+          var turbo1 = 75;
+          var big = 75; // turn big counter
+          var big1 = 75;
+          var clear = 0; // clear canvas counter
+          var clear1 = 0;
+          var ballRadius1 = 4; // size of both snakes
+          var ballRadius2 = 4;
+          var clearsLeft = 1; // only can clear once
+          var clearsLeft1 = 1;
+          var rightPressed = false; // buttons used in the game
+          var leftPressed = false;
+          var upPressed = false;
+          var downPressed = false;
+          var rightPressed1 = false;
+          var leftPressed1 = false;
+          var upPressed1 = false;
+          var downPressed1 = false;
+          var shift = false;
+          var enter = false;
+          var fkey = false;
+          var plus = false;
+          var ekey = false;
+          var minus = false;
+          var collision = new Array(canvas.width); // make an array the size of the grid to detect collision
+          for (var i = 0; i < canvas.width; i++) {
+            collision[i] = new Array(canvas.height);
+          }
+
+          function clearArray() { // clears the array for the grid after erase() is called
+            for (var x = 0; x < canvas.width; x++) {
+              for (var y = 0; y < canvas.height; y++) {
+                collision[x][y] = 0;
+              }
+            }
+          }
+
+          document.addEventListener("keydown", keyDownHandler, false); // detect the pushed keys
+          document.addEventListener("keyup", keyUpHandler, false);
+
+          function keyDownHandler(e) { // down pressed
+            if(e.keyCode == 39) {
+              rightPressed = true;
+            }
+            else if(e.keyCode == 37) {
+              leftPressed = true;
+            }
+            else if(e.keyCode == 38) {
+              upPressed = true;
+            }
+            else if(e.keyCode == 40) {
+              downPressed = true;
+            }
+            else if(e.keyCode == 87) {
+              upPressed1 = true;
+            }
+            else if(e.keyCode == 65) {
+              leftPressed1 = true;
+            }
+            else if(e.keyCode == 83) {
+              downPressed1 = true;
+            }
+            else if(e.keyCode == 68) {
+              rightPressed1 = true;
+            }
+            else if (e.keyCode == 16) {
+              shift = true;
+            }
+            else if (e.keyCode == 13) {
+              enter = true;
+            }
+            else if (e.keyCode == 70) {
+              fkey = true;
+            }
+            else if (e.keyCode == 107) {
+              plus = true;
+            }
+            else if (e.keyCode == 69) {
+              ekey = true;
+            }
+            else if (e.keyCode == 109) {
+              minus = true;
+            }
+          }
+
+          function keyUpHandler(e) { // not pressed
+            if(e.keyCode == 39) {
+              rightPressed = false;
+            }
+            else if(e.keyCode == 37) {
+              leftPressed = false;
+            }
+            else if(e.keyCode == 38) {
+              upPressed = false;
+            }
+            else if(e.keyCode == 40) {
+              downPressed = false;
+            }
+            else if(e.keyCode == 87) {
+              upPressed1 = false;
+            }
+            else if(e.keyCode == 65) {
+              leftPressed1 = false;
+            }
+            else if(e.keyCode == 83) {
+              downPressed1 = false;
+            }
+            else if(e.keyCode == 68) {
+              rightPressed1 = false;
+            }
+            else if (e.keyCode == 16) {
+              shift = false;
+            }
+            else if (e.keyCode == 13) {
+              enter = false;
+            }
+            else if (e.keyCode == 70) {
+              fkey = false;
+            }
+            else if (e.keyCode == 107) {
+              plus = false;
+            }
+            else if (e.keycode == 69) {
+              ekey = false;
+            }
+            else if (e.keyCode == 109) {
+              minus = false;
+            }
+          }
+
+          function draw() { // balls drawn every 10 ms
+            drawBall1();
+            drawBall2();
+            bounce1();
+            bounce2();
+            collide();
+            increment();
+            changeDir0();
+            changeDir1();
+            activatePowerUp();
+            showStats();
+          }
+
+          function activatePowerUp() { // powerup functions
+            powerUps();
+            boost();
+            boost1();
+            huge();
+            huge1();
+            erase();
+            erase1();
+          }
+
+          function showStats() { // stats functions
+            drawTurbo();
+            drawSize();
+            drawClear();
+            drawClear1();
+          }
+
+          function drawTurbo() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "#0095DD";
+            ctx.fillText("Turbo: " + turbo, 8, 20);
+
+            ctx.fillStyle = "#C80000";
+            ctx.fillText("Turbo: " + turbo1, 620, 20);
+          }
+
+          function drawSize() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "#0095DD";
+            ctx.fillText("Turn Big: " + big, 8, 40);
+
+            ctx.fillStyle = "#C80000";
+            ctx.fillText("Turn Big: " + big1, 601, 40);
+          }
+
+          function drawClear() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "#0095DD";
+            if (clearsLeft == 1) {
+              ctx.fillText("CLEAR: " + clear, 8, 60);
+            }
+            else {
+              ctx.fillStyle = "#000000";
+              ctx.fillText("NO CLEARS LEFT", 8, 60);
+            }
+
+          }
+
+          function drawClear1() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "#C80000";
+            if (clearsLeft1 == 1) {
+              ctx.fillText("CLEAR: " + clear1, 606, 60);
+            }
+            else {
+              ctx.fillStyle = "#000000";
+              ctx.fillText("NO CLEARS LEFT", 557, 60);
+            }
+          }
+
+          function collide() { // detect collisions
+            ctx.clearRect(560, 0, 150, 70);
+            ctx.clearRect(0, 0, 150, 70);
+            if (collision[x1][y1] == 1) {
+              alert("Red Snake Wins!");
+              document.location.reload();
+            }
+            if (collision[x2][y2] == 1) {
+              alert("Blue Snake Wins!");
+              document.location.reload();
+            }
+            if (collision[x1][y1] == 2) {
+              turbo += 5;
+            }
+            if (collision[x2][y2] == 2) {
+              turbo1 += 5;
+            }
+            if (collision[x1][y1] == 3) {
+              big += 5;
+            }
+            if (collision[x2][y2] == 3) {
+              big1 += 5;
+            }
+            if (collision[x1][y1] == 4) {
+              clear = 1;
+            }
+            if (collision[x2][y2] == 4) {
+              clear1 = 1;
+            }
+          }
+
+          function increment() { // change in x and y
+            collision[x1][y1] = 1;
+            collision[x2][y2] = 1;
+            x1 += dx1;
+            y1 += dy1;
+            x2 += dx2;
+            y2 += dy2;
+          }
+
+          function huge() { // turn big
+            if (fkey && big != 0) {
+              ballRadius1 = 10;
+              big--;
+            }
+            else {
+              ballRadius1 = 4;
+            }
+          }
+
+          function huge1() {
+            if (plus && big1 != 0) {
+              ballRadius2 = 10;
+              big1--;
+            }
+            else {
+              ballRadius2 = 4;
+            }
+          }
+
+          function erase1() { // erase the canvas
+            if (minus && clear1 != 0 && clearsLeft1 == 1) {
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              clear1 = 0;
+              clearsLeft1--;
+              clearArray();
+            }
+          }
+
+          function erase() {
+            if (ekey && clear == 1 && clearsLeft == 1) {
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              clear = 0;
+              clearsLeft--;
+              clearArray();
+            }
+          }
+
+          function boost() { // go fast for a bit
+            if (shift && turbo != 0) {
+            }
+
+            if (shift && turbo != 0 && dx1 > 0) {
+              dx1 = 2;
+              collision[x1-1][y1] = 1;
+              turbo -= 1;
+            }
+            else if (shift && turbo != 0 && dx1 < 0) {
+              dx1 = -2;
+              collision[x1+1][y1] = 1;
+              turbo -= 1;
+            }
+            else if (shift && turbo != 0 && dy1 > 0) {
+              dy1 = 2;
+              collision[x1][y1-1] = 1;
+              turbo -= 1;
+            }
+            else if (shift && turbo != 0 && dy1 < 0) {
+              dy1 = -2;
+              collision[x1][y1+1] = 1;
+              turbo -= 1;
+            }
+            else if (dx1 > 0) {
+              dx1 = 1;
+            }
+            else if (dx1 < 0) {
+              dx1 = -1;
+            }
+            else if (dy1 > 0) {
+              dy1 = 1;
+            }
+            else if (dy1 < 0) {
+              dy1 = -1;
+            }
+          }
+
+          function boost1() {
+            if (enter && turbo1 != 0 && dx2 > 0) {
+              dx2 = 2;
+              collision[x2-1][y2] = 1
+              turbo1 -= 1;
+            }
+            else if (enter && turbo1 != 0 && dx2 < 0) {
+              dx2 = -2;
+              collision[x2+1][y2] = 1
+              turbo1 -= 1;
+            }
+            else if (enter && turbo1 != 0 && dy2 > 0) {
+              dy2 = 2;
+              collision[x2][y2-1] = 1
+              turbo1 -= 1;
+            }
+            else if (enter && turbo1 != 0 && dy2 < 0) {
+              dy2 = -2;
+              collision[x2][y2+1] = 1
+              turbo1 -= 1;
+            }
+            else if (dx2 > 0) {
+              dx2 = 1;
+            }
+            else if (dx2 < 0) {
+              dx2 = -1;
+            }
+            else if (dy2 > 0) {
+              dy2 = 1;
+            }
+            else if (dy2 < 0) {
+              dy2 = -1;
+            }
+          }
+
+          function powerUps() { // create small powerup boxes for snakes
+            var randX = Math.floor(Math.random() * 700);
+            var randY = Math.floor(Math.random() * 700);
+            var randGen = Math.floor(Math.random() * 3000);
+            if (randGen < 9) {
+              ctx.fillStyle = "orange";
+              ctx.fillRect(randX, randY, 8, 8);
+              for (var x = 8; x > 0; x--) {
+                for (var y = 8; y > 0; y--) {
+                  collision[randX + x][randY + y] = 2;
+                }
+              }
+            }
+            else if (randGen < 16) {
+              ctx.fillStyle = "blue";
+              ctx.fillRect(randX, randY, 8, 8);
+              for (var x = 8; x > 0; x--) {
+                for (var y = 8; y > 0; y--) {
+                  collision[randX + x][randY + y] = 3;
+                }
+              }
+            }
+            else if (randGen < 18) {
+              ctx.fillStyle = "green";
+              ctx.fillRect(randX, randY, 8, 8);
+              for (var x = 8; x > 0; x--) {
+                for (var y = 8; y > 0; y--) {
+                  collision[randX + x][randY + y] = 4;
+                }
+              }
+            }
+          }
+
+          function changeDir0() { // change direction of snake movement
+            if(downPressed1 && dx1 > 0) {
+              dy1 = dx1;
+              dx1 = 0;
+            }
+            else if(downPressed1 && dx1 < 0) {
+              dy1 = -dx1;
+              dx1 = 0;
+            }
+            else if(upPressed1 && dx1 > 0) {
+              dy1 = -dx1;
+              dx1 = 0;
+            }
+            else if(upPressed1 && dx1 < 0) {
+              dy1 = dx1;
+              dx1 = 0;
+            }
+            else if(rightPressed1 && dy1 > 0) {
+              dx1 = dy1;
+              dy1 = 0;
+            }
+            else if(rightPressed1 && dy1 < 0) {
+              dx1 = -dy1;
+              dy1 = 0;
+            }
+            else if(leftPressed1 && dy1 > 0) {
+              dx1 = -dy1;
+              dy1 = 0;
+            }
+            else if(leftPressed1 && dy1 < 0) {
+              dx1 = dy1;
+              dy1 = 0;
+            }
+          }
+
+          function changeDir1() {
+            if(downPressed && dx2 > 0) {
+              dy2 = dx2;
+              dx2 = 0;
+            }
+            else if(downPressed && dx2 < 0) {
+              dy2 = -dx2;
+              dx2 = 0;
+            }
+            else if(upPressed && dx2 > 0) {
+              dy2 = -dx2;
+              dx2 = 0;
+            }
+            else if(upPressed && dx2 < 0) {
+              dy2 = dx2;
+              dx2 = 0;
+            }
+            else if(rightPressed && dy2 > 0) {
+              dx2 = dy2;
+              dy2 = 0;
+            }
+            else if(rightPressed && dy2 < 0) {
+              dx2 = -dy2;
+              dy2 = 0;
+            }
+            else if(leftPressed && dy2 > 0) {
+              dx2 = -dy2;
+              dy2 = 0;
+            }
+            else if(leftPressed && dy2 < 0) {
+              dx2 = dy2;
+              dy2 = 0;
+            }
+          }
+
+          function bounce2() { // if hits the sides of canvas, dies
+            if(x2 + dx2 > canvas.width-ballRadius2 || x2 + dx2 < ballRadius2) {
+              dx2 = -dx2;
+
+            }
+            if(y2 + dy2 > canvas.height-ballRadius2 || y2 + dy2 < ballRadius2) {
+              dy2 = -dy2;
+            }
+          }
+
+          function bounce1() {
+            if(x1 + dx1 > canvas.width-ballRadius1 ||   x1 + dx1 < ballRadius1) {
+              dx1 = -dx1;
+            }
+            if(y1 + dy1 > canvas.height-ballRadius1 || y1 + dy1 < ballRadius1) {
+                dy1 = -dy1;
+            }
+          }
+
+          function drawBall1() {
+            ctx.beginPath();
+            ctx.arc(x1, y1, ballRadius1, 0, Math.PI*2);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+          }
+
+          function drawBall2() {
+            ctx.beginPath();
+            ctx.arc(x2, y2, ballRadius2, 0, Math.PI*2);
+            ctx.fillStyle = "#C80000";
+            ctx.fill();
+            ctx.closePath();
+          }
+
+          setInterval(draw, 10); // draw every 10 ms
+
+        </script>
+
+      </div>
+    </div>
+    <div id="instructions">
+    <p class="snake1"> Activate Turbo: Shift <br />
+      Activate SuperSnake: F key <br />
+      Activate ClearCanvas: E key <br />
+    </p>
+
+    <p class="snake2"> Activate Turbo: Enter <br />
+      Activate SuperSnake: Plus key <br />
+      Activate ClearCanvas: Minus key <br />
+    </p>
+    </div>
+  </body>
+</html>
